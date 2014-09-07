@@ -24,13 +24,15 @@ CFLAGS += -Iinclude/
 TOOLS = fexc bin2fex fex2bin bootinfo fel pio
 TOOLS += nand-part
 
+SCRIPTS = bin/ramboot.scr
+
 MISC_TOOLS = phoenix_info
 
 CROSS_COMPILE ?= arm-none-eabi-
 
 .PHONY: all clean
 
-all: $(TOOLS)
+all: $(TOOLS) $(SCRIPTS)
 
 misc: $(MISC_TOOLS)
 
@@ -63,6 +65,9 @@ nand-part: nand-part-main.c nand-part.c nand-part-a10.h nand-part-a20.h
 
 %: %.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(filter %.c,$^) $(LIBS)
+
+%.scr: %.uboot-sh
+	mkimage -C none -A arm -T script -d $< $@
 
 fel-pio.bin: fel-pio.elf fel-pio.nm
 	$(CROSS_COMPILE)objcopy -O binary fel-pio.elf fel-pio.bin
