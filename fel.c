@@ -18,6 +18,7 @@
 /* Needs _BSD_SOURCE for htole and letoh  */
 #define _BSD_SOURCE
 #define _NETBSD_SOURCE
+#define _GNU_SOURCE /* asprintf */
 
 #include <libusb.h>
 #include <stdint.h>
@@ -160,7 +161,7 @@ void aw_fel_get_version(libusb_device_handle *usb)
 	buf.pad[0] = le32toh(buf.pad[0]);
 	buf.pad[1] = le32toh(buf.pad[1]);
 
-	const char *soc_name="unknown";
+	const char *soc_name="unknown(    )";
 	switch ((buf.soc_id >> 8) & 0xFFFF) {
 	case 0x1623: soc_name="A10";break;
 	case 0x1625: soc_name="A13";break;
@@ -168,6 +169,7 @@ void aw_fel_get_version(libusb_device_handle *usb)
 	case 0x1651: soc_name="A20";break;
 	case 0x1650: soc_name="A23";break;
 	case 0x1639: soc_name="A80";break;
+	default: asprintf(&soc_name, "unknown(%4x)", (buf.soc_id >> 8) & 0xFFFF);
 	}
 
 	printf("%.8s soc=%08x(%s) %08x ver=%04x %02x %02x scratchpad=%08x %08x %08x\n", buf.signature, buf.soc_id, soc_name, buf.unknown_0a, buf.protocol, buf.unknown_12, buf.unknown_13, buf.scratchpad, buf.pad[0], buf.pad[1]);
