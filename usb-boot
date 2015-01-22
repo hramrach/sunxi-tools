@@ -22,7 +22,7 @@
 
 top=`dirname $0`
 if [ $# -lt 2 ]; then
-	echo "Usage: $0 u-boot-spl.bin u-boot.bin [boot.scr] [kernel script.bin [initramfs]]"
+	echo "Usage: $0 u-boot-spl.bin u-boot.bin [boot.scr] [kernel [script.bin|dtb] [initramfs]]"
 	exit 1
 fi
 board=$1; shift || (echo "ERROR: u-boot-spl.bin must be specified"; exit 1;)
@@ -33,6 +33,8 @@ if [ ! -f $bootscr ]; then
 fi
 case "$1" in
 *.scr)	bootscr="$1"; shift
+	;;
+"")	bootscr="$1"; shift
 	;;
 esac
 if [ $# -ge 1 ]; then
@@ -77,15 +79,15 @@ if [ -n "$uboot" ]; then
 	fel write 0x4a000000 $uboot
 fi
 if [ -n "$bootscr" ]; then
-	fel write 0x41000000 $bootscr
+	fel write 0x43100000 $bootscr
 fi
 if [ -n "$kernel" ]; then
  if [ -n "$scriptbin" ]; then
   fel write 0x43000000 $scriptbin
  fi
- fel write 0x44000000 $kernel
+ fel write 0x42000000 $kernel
  if [ -n "$initramfs" ]; then
-  fel write 0x4c000000 $initramfs
+  fel write 0x43300000 $initramfs
  fi
 fi
 fel exe 0x4a000000
